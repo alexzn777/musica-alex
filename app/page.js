@@ -87,6 +87,7 @@ export default function Home() {
   const audioRef = useRef(null);
   const progressBarRef = useRef(null);
   const volBarRef = useRef(null);
+  const videoRef = useRef(null);
 
   const filteredPlaylist = playlist.filter(c =>
     c.titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -204,6 +205,19 @@ export default function Home() {
       if (isPlaying) audioRef.current.play().catch(() => setIsPlaying(false));
     }
   }, [cancionActual]);
+
+  // Control del video de fondo para que funcione en producción
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.play().catch(err => {
+          console.log('Video autoplay blocked:', err);
+        });
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
 
   return (
     <>
@@ -779,11 +793,12 @@ export default function Home() {
               <div className="np-eyebrow">Reproduciendo ahora</div>
               <div className={`album-art ${isPlaying ? 'playing' : ''}`}>
                 <video 
+                  ref={videoRef}
                   src="/video_goku.mp4" 
-                  autoPlay={isPlaying} 
                   loop 
                   muted 
                   playsInline
+                  preload="auto"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
                 />
               </div>
